@@ -62,12 +62,17 @@ async function openSettings(page: Page, tab?: string) {
   if (tab) {
     // Target the tab button specifically (role="tab") to avoid matching content text
     const tabBtn = page.locator('[role="tab"]').filter({ hasText: tab }).first();
+    // Scroll it into view first (tab list may be scrollable)
+    await tabBtn.scrollIntoViewIfNeeded().catch(() => {});
+    await page.waitForTimeout(200);
     if (await tabBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
       await tabBtn.click();
+      await page.waitForTimeout(500);
     } else {
+      // Last resort: click by exact text
       await page.click(`text=${tab}`).catch(() => {});
+      await page.waitForTimeout(500);
     }
-    await page.waitForTimeout(500);
   }
 }
 
