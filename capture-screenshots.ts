@@ -151,18 +151,27 @@ test.describe("Feature Screenshots", () => {
     await page.waitForTimeout(1000);
     const scheduleBtn = page.locator('.compose-dialog__send-btn--dropdown');
     if (await scheduleBtn.isVisible()) {
-      const btnBox = await scheduleBtn.boundingBox();
       await scheduleBtn.click();
       await page.waitForTimeout(500);
-      // Crop tightly around the send button + dropdown menu
-      if (btnBox) {
-        await page.screenshot({
-          path: path.join(SCREENSHOTS_DIR, "05-schedule-send.png"),
-          clip: { x: Math.max(0, btnBox.x - 40), y: Math.max(0, btnBox.y - 20), width: 350, height: 320 },
-        });
-      } else {
-        await snap(page, "05-schedule-send");
+      // The dropdown opens upward (above the send button). Find the dropdown portal.
+      const dropdown = page.locator('[role="menu"]').first();
+      if (await dropdown.isVisible({ timeout: 2000 }).catch(() => false)) {
+        const menuBox = await dropdown.boundingBox();
+        const btnBox = await scheduleBtn.boundingBox();
+        if (menuBox && btnBox) {
+          // Crop from top of dropdown to bottom of send button, with padding
+          const top = Math.max(0, menuBox.y - 15);
+          const bottom = btnBox.y + btnBox.height + 15;
+          const left = Math.max(0, Math.min(menuBox.x, btnBox.x) - 30);
+          const right = Math.max(menuBox.x + menuBox.width, btnBox.x + btnBox.width) + 30;
+          await page.screenshot({
+            path: path.join(SCREENSHOTS_DIR, "05-schedule-send.png"),
+            clip: { x: left, y: top, width: right - left, height: bottom - top },
+          });
+          return;
+        }
       }
+      await snap(page, "05-schedule-send");
     }
   });
 
