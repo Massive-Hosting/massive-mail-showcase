@@ -125,17 +125,36 @@ test.describe("Walkthrough Recording", () => {
     // ACT 2: INBOX - Browse emails
     // ============================================================
 
-    // Click first email to open reading pane
+    // Click through several emails quickly
     await smoothClick(page, '.message-list-item:nth-child(1)');
-    await pause(page, 1800);
+    await pause(page, 1200);
 
-    // Click second email
     await smoothClick(page, '.message-list-item:nth-child(2)');
-    await pause(page, 1500);
+    await pause(page, 1000);
 
-    // Click third email
     await smoothClick(page, '.message-list-item:nth-child(3)');
-    await pause(page, 1500);
+    await pause(page, 1000);
+
+    await smoothClick(page, '.message-list-item:nth-child(5)');
+    await pause(page, 800);
+
+    // Try to expand a thread if one exists
+    const threadHeader = page.locator('.message-list-item--thread-header').first();
+    if (await threadHeader.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await glide(page, '.message-list-item--thread-header');
+      await threadHeader.click();
+      await pause(page, 1200);
+      // Click a child message in the expanded thread
+      const threadChild = page.locator('.message-list-item--thread-child').first();
+      if (await threadChild.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await threadChild.click();
+        await pause(page, 1000);
+      }
+    } else {
+      // No thread, just click one more email
+      await smoothClick(page, '.message-list-item:nth-child(4)');
+      await pause(page, 800);
+    }
 
     // ============================================================
     // ACT 3: COMPOSE with Schedule Send
