@@ -60,7 +60,13 @@ async function openSettings(page: Page, tab?: string) {
   });
   await page.waitForTimeout(1000);
   if (tab) {
-    await page.click(`text=${tab}`).catch(() => {});
+    // Target the tab button specifically (role="tab") to avoid matching content text
+    const tabBtn = page.locator('[role="tab"]').filter({ hasText: tab }).first();
+    if (await tabBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await tabBtn.click();
+    } else {
+      await page.click(`text=${tab}`).catch(() => {});
+    }
     await page.waitForTimeout(500);
   }
 }
