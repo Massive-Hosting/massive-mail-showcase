@@ -273,34 +273,43 @@ test.describe("Walkthrough Recording", () => {
     await smoothClick(page, '.message-list-item:nth-child(1)');
     await pause(page, 1200);
 
-    // Open AI panel
-    let aiClicked = false;
-    for (const sel of ['button[aria-label*="AI"]', 'button[aria-label*="Copilot"]', 'button[aria-label*="Assistant"]']) {
+    // Step 1: Click "Summarize" in the smart reply bar (bottom of reading pane)
+    const summarizeBtn = page.locator('.smart-reply-bar__btn').filter({ hasText: /Summarize|Oppsummer/ }).first();
+    if (await summarizeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await glide(page, '.smart-reply-bar__btn:has-text("Summarize")');
+      await summarizeBtn.click();
+      await pause(page, 4000); // Wait for summary to generate
+    }
+
+    // Step 2: Scroll reading pane down to show summary, then pause
+    await pause(page, 1000);
+
+    // Step 3: Open the copilot panel via toolbar sparkle button
+    // (more reliable than the smart reply bar button which may be obscured)
+    for (const sel of ['button[aria-label*="AI"]', 'button[aria-label*="Assistant"]']) {
       const btn = page.locator(sel).first();
-      if (await btn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      if (await btn.isVisible({ timeout: 1500 }).catch(() => false)) {
         await glide(page, sel);
         await btn.click();
-        aiClicked = true;
         break;
       }
     }
     await pause(page, 1500);
 
-    if (aiClicked) {
-      const summarizeBtn = page.locator('button').filter({ hasText: /Summarize|Oppsummer|key points/ }).first();
-      if (await summarizeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await glide(page, 'button:has-text("Summarize")');
-        await summarizeBtn.click();
-      }
+    // Step 4: Click a suggestion in the copilot (e.g., "Draft a reply")
+    const draftBtn = page.locator('button').filter({ hasText: /Draft a reply|Skriv et svar/ }).first();
+    if (await draftBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await glide(page, 'button:has-text("Draft a reply")');
+      await draftBtn.click();
+      await pause(page, 4000); // Wait for AI response
+    } else {
+      await pause(page, 2000);
     }
-    await pause(page, 5000);
 
-    // Close copilot
-    if (aiClicked) {
-      for (const sel of ['button[aria-label*="AI"]', 'button[aria-label*="Copilot"]']) {
-        const btn = page.locator(sel).first();
-        if (await btn.isVisible({ timeout: 500 }).catch(() => false)) { await btn.click(); break; }
-      }
+    // Step 5: Close copilot panel
+    for (const sel of ['button[aria-label*="AI"]', 'button[aria-label*="Assistant"]', 'button[aria-label*="close" i]']) {
+      const btn = page.locator(sel).first();
+      if (await btn.isVisible({ timeout: 500 }).catch(() => false)) { await btn.click(); break; }
     }
     await pause(page, 800);
 
