@@ -66,11 +66,50 @@ test.describe("Walkthrough Recording", () => {
 
     const page = await context.newPage();
 
+    // Inject a visible cursor that tracks mouse movements
+    await page.addInitScript(() => {
+      const style = document.createElement("style");
+      style.textContent = `
+        #pw-cursor {
+          position: fixed;
+          z-index: 999999;
+          pointer-events: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: rgba(134, 59, 255, 0.7);
+          box-shadow: 0 0 0 3px rgba(134, 59, 255, 0.25), 0 2px 8px rgba(0,0,0,0.3);
+          transform: translate(-50%, -50%);
+          transition: width 0.15s, height 0.15s, background 0.15s;
+        }
+        #pw-cursor.clicking {
+          width: 14px;
+          height: 14px;
+          background: rgba(134, 59, 255, 1);
+        }
+        * { cursor: none !important; }
+      `;
+      document.addEventListener("DOMContentLoaded", () => {
+        document.head.appendChild(style);
+        const cursor = document.createElement("div");
+        cursor.id = "pw-cursor";
+        document.body.appendChild(cursor);
+        document.addEventListener("mousemove", (e) => {
+          cursor.style.left = e.clientX + "px";
+          cursor.style.top = e.clientY + "px";
+        });
+        document.addEventListener("mousedown", () => cursor.classList.add("clicking"));
+        document.addEventListener("mouseup", () => cursor.classList.remove("clicking"));
+      });
+    });
+
     // ============================================================
     // ACT 1: LOGIN
     // ============================================================
     await page.goto(BASE_URL);
     await page.waitForSelector('input[type="email"]', { timeout: 10000 });
+    // Move cursor to center to make it visible from the start
+    await page.mouse.move(720, 450, { steps: 5 });
     await pause(page, 1500);
 
     // Type email elegantly
