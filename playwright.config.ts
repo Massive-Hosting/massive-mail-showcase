@@ -2,8 +2,8 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: ".",
-  testMatch: "capture-screenshots.ts",
-  timeout: 60_000,
+  testMatch: ["capture-screenshots.ts", "record-walkthrough.ts"],
+  timeout: 120_000, // walkthrough takes longer
   expect: { timeout: 10_000 },
   retries: 0,
   reporter: "list",
@@ -18,7 +18,7 @@ export default defineConfig({
       use: {
         browserName: "chromium",
         viewport: { width: 1440, height: 900 },
-        deviceScaleFactor: 2, // Retina 2x for crisp screenshots
+        deviceScaleFactor: 2,
       },
     },
   ],

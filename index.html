@@ -366,15 +366,27 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
     </p>
   </div>
 
-  <div class="relative z-10 w-full img-hero mx-auto hero-float">
+  <div class="relative z-10 w-full img-hero mx-auto">
     <div class="browser-frame hero-glow">
       <div class="browser-bar">
         <div class="browser-dot browser-dot-red"></div>
         <div class="browser-dot browser-dot-yellow"></div>
         <div class="browser-dot browser-dot-green"></div>
       </div>
-      <div class="browser-frame-content">
-        <img src="screenshots/01-login.png" alt="Massive Mail login" loading="eager">
+      <div class="browser-frame-content" style="position: relative;">
+        <video
+          id="hero-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          poster="screenshots/01-login.png"
+          style="display: block; width: 100%; height: auto;"
+        >
+          <source src="walkthrough.mp4" type="video/mp4">
+          <img src="screenshots/01-login.png" alt="Massive Mail login">
+        </video>
       </div>
     </div>
   </div>
