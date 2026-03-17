@@ -1,13 +1,13 @@
 {
   "login": 0,
-  "inbox": 4.996,
-  "compose": 12.347,
-  "search": 20.814,
-  "context_menu": 23.54,
-  "calendar": 26.112,
-  "contacts": 39.424,
-  "ai_copilot": 42.173,
-  "dark_mode": 55.393,
-  "shortcuts": 59.418,
-  "end": 63.182
+  "inbox": 5.172,
+  "compose": 14.692,
+  "search": 23.354,
+  "context_menu": 25.946,
+  "calendar": 28.535,
+  "contacts": 41.836,
+  "ai_copilot": 44.545,
+  "dark_mode": 57.918,
+  "shortcuts": 61.945,
+  "end": 65.721
 }

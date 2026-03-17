@@ -109,25 +109,39 @@ test.describe("Walkthrough Recording", () => {
 
     // --- INBOX ---
     mark("inbox");
-    await smoothClick(page, '.message-list-item:nth-child(1)');
-    await pause(page, 1200);
-    await smoothClick(page, '.message-list-item:nth-child(2)');
-    await pause(page, 1000);
-    await smoothClick(page, '.message-list-item:nth-child(3)');
-    await pause(page, 800);
-    await smoothClick(page, '.message-list-item:nth-child(5)');
-    await pause(page, 800);
 
-    // Expand thread if available
+    // Click through emails using .all() to get actual visible items
+    const allMessages = page.locator('.message-list-item');
+    const msgCount = await allMessages.count();
+    console.log(`  Found ${msgCount} messages in list`);
+
+    // Click first 5 messages (or as many as available) with quick pacing
+    for (let i = 0; i < Math.min(5, msgCount); i++) {
+      const msg = allMessages.nth(i);
+      if (await msg.isVisible({ timeout: 500 }).catch(() => false)) {
+        const box = await msg.boundingBox();
+        if (box) {
+          await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 15 });
+          await page.waitForTimeout(100);
+          await msg.click();
+          await pause(page, i === 0 ? 1000 : 700); // slightly longer on first
+        }
+      }
+    }
+
+    // Try to expand a thread
     const threadHeader = page.locator('.message-list-item--thread-header').first();
-    if (await threadHeader.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await glide(page, '.message-list-item--thread-header');
-      await threadHeader.click();
-      await pause(page, 1000);
-      const threadChild = page.locator('.message-list-item--thread-child').first();
-      if (await threadChild.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await threadChild.click();
+    if (await threadHeader.isVisible({ timeout: 800 }).catch(() => false)) {
+      const box = await threadHeader.boundingBox();
+      if (box) {
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 15 });
+        await threadHeader.click();
         await pause(page, 800);
+        const threadChild = page.locator('.message-list-item--thread-child').first();
+        if (await threadChild.isVisible({ timeout: 800 }).catch(() => false)) {
+          await threadChild.click();
+          await pause(page, 700);
+        }
       }
     }
 
@@ -199,32 +213,36 @@ test.describe("Walkthrough Recording", () => {
       await pause(page, 1500);
     }
 
-    // Click an event if visible
-    const eventBlock = page.locator('button[title]').filter({ has: page.locator('.text-\\[11px\\]') }).first();
-    if (await eventBlock.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await glide(page, 'button[title]:has(.text-\\[11px\\])');
-      await eventBlock.click();
-      await pause(page, 1500);
-      await page.keyboard.press("Escape");
-      await pause(page, 500);
+    // Click an event to show the popover
+    const eventBlock = page.locator('[data-testid="calendar-event"]').first();
+    if (await eventBlock.isVisible({ timeout: 2000 }).catch(() => false)) {
+      const evBox = await eventBlock.boundingBox();
+      if (evBox) {
+        await page.mouse.move(evBox.x + evBox.width / 2, evBox.y + evBox.height / 2, { steps: 15 });
+        await page.waitForTimeout(150);
+        await eventBlock.click();
+        await pause(page, 1500);
+        await page.keyboard.press("Escape");
+        await pause(page, 500);
+      }
     }
 
-    // Drag an event (simulate by moving mouse down on an event block)
-    const draggableEvent = page.locator('.flex-1.relative button').first();
-    if (await draggableEvent.isVisible({ timeout: 1000 }).catch(() => false)) {
-      const box = await draggableEvent.boundingBox();
+    // Drag an event down to reschedule
+    const dragTarget = page.locator('[data-testid="calendar-event"]').first();
+    if (await dragTarget.isVisible({ timeout: 1000 }).catch(() => false)) {
+      const box = await dragTarget.boundingBox();
       if (box) {
         const startX = box.x + box.width / 2;
-        const startY = box.y + box.height / 2;
+        const startY = box.y + 5; // near the top of the event
         await page.mouse.move(startX, startY, { steps: 10 });
         await pause(page, 300);
         await page.mouse.down();
-        // Drag down ~120px (roughly 2 hours on the week grid)
-        for (let i = 0; i < 12; i++) {
-          await page.mouse.move(startX, startY + i * 10, { steps: 3 });
-          await page.waitForTimeout(50);
+        // Drag down slowly (~120px = ~2 hours on week grid)
+        for (let step = 0; step < 24; step++) {
+          await page.mouse.move(startX, startY + step * 5, { steps: 2 });
+          await page.waitForTimeout(40);
         }
-        await pause(page, 500);
+        await pause(page, 400);
         await page.mouse.up();
         await pause(page, 800);
       }
