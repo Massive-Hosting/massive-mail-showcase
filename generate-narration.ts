@@ -22,17 +22,18 @@ const OUTPUT_DIR = path.join(__dirname, "audio");
 
 // Narration segments timed to the walkthrough video (~61 seconds)
 // Each segment has text and the time offset (seconds) when it should start
+// Timings aligned to actual video actions (62s total)
 const segments = [
   { time: 0, text: "Meet Massive Mail. A modern webmail client, built for speed." },
-  { time: 5, text: "Sign in and you're greeted by a clean, three-pane layout." },
-  { time: 12, text: "Browse your inbox with clear read and unread indicators." },
-  { time: 18, text: "Compose rich emails with formatting, attachments, and schedule send." },
-  { time: 27, text: "Find anything instantly with powerful full-text search." },
-  { time: 32, text: "Right-click for quick actions — snooze, print, move, and more." },
-  { time: 36, text: "A full calendar with month and week views, event creation, and sharing." },
-  { time: 44, text: "Manage your contacts with photos, groups, and import export." },
-  { time: 49, text: "Ask the AI assistant to summarize, translate, or draft replies." },
-  { time: 55, text: "Switch to dark mode with one click. Massive Mail — the inbox you deserve." },
+  { time: 6, text: "Sign in and you're greeted by a clean, three-pane layout." },
+  { time: 10, text: "Browse your inbox with clear read and unread indicators." },
+  { time: 15, text: "Compose rich emails with formatting, attachments, and schedule send." },
+  { time: 23, text: "Find anything instantly with powerful full-text search." },
+  { time: 27, text: "Right-click for quick actions — snooze, print, move, and more." },
+  { time: 31, text: "A full calendar with month and week views, event creation, and sharing." },
+  { time: 38, text: "Manage your contacts with photos, groups, and import export." },
+  { time: 43, text: "Ask the AI assistant to summarize, translate, or draft replies." },
+  { time: 52, text: "Switch to dark mode with one click. Massive Mail — the inbox you deserve." },
 ];
 
 async function generateSegment(text: string, index: number): Promise<string> {
