@@ -128,14 +128,34 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
 /* Screenshot sizing constraints */
 .img-hero { max-width: 1100px; margin: 0 auto; }
 .img-two-col .browser-frame { max-width: 700px; }
+.img-two-col .shot { max-width: 700px; }
 .img-dialog .browser-frame { max-width: 600px; }
 .img-small .browser-frame { max-width: 400px; }
 
 /* Feature grid card images */
-.glass-card .browser-frame img {
+.glass-card .browser-frame img,
+.glass-card .shot img {
   max-height: 400px;
   object-fit: contain;
   object-position: top;
+}
+
+/* Clean screenshot card — no macOS chrome, just rounded + shadow */
+.shot {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+.shot:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 32px rgba(134, 59, 255, 0.15), 0 0 0 1px rgba(134, 59, 255, 0.12);
+}
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Glass card */
@@ -381,15 +401,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-1">
         <h3 class="text-lg font-semibold mb-3">Rich Compose</h3>
         <p class="text-white/50 text-sm mb-4">Full-featured editor with formatting, attachments, signatures, and template support.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/04-compose.png" alt="Compose email" loading="lazy">
-          </div>
         </div>
       </div>
 
@@ -397,15 +410,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-2">
         <h3 class="text-lg font-semibold mb-3">Schedule Send</h3>
         <p class="text-white/50 text-sm mb-4">Time your emails perfectly. Pick a date and time or choose a smart suggestion.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/05-schedule-send.png" alt="Schedule send" loading="lazy">
-          </div>
         </div>
       </div>
 
@@ -413,15 +419,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-1">
         <h3 class="text-lg font-semibold mb-3">Threaded Conversations</h3>
         <p class="text-white/50 text-sm mb-4">Follow entire conversations in one view. Expand, collapse, and reply inline.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/06-thread-view.png" alt="Thread view" loading="lazy">
-          </div>
         </div>
       </div>
 
@@ -429,15 +428,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-2">
         <h3 class="text-lg font-semibold mb-3">Powerful Search</h3>
         <p class="text-white/50 text-sm mb-4">Find anything instantly with full-text search across all mailboxes.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/07-search.png" alt="Search" loading="lazy">
-          </div>
         </div>
       </div>
 
@@ -445,15 +437,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-1">
         <h3 class="text-lg font-semibold mb-3">Visual Indicators</h3>
         <p class="text-white/50 text-sm mb-4">Clear read/unread states, flags, and labels help you stay on top of things.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/21-read-unread-indicators.png" alt="Read and unread indicators" loading="lazy">
-          </div>
         </div>
       </div>
 
@@ -461,15 +446,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-2">
         <h3 class="text-lg font-semibold mb-3">Context Menus</h3>
         <p class="text-white/50 text-sm mb-4">Right-click for quick actions — snooze, print, move, label, and more.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/09-message-context-menu.png" alt="Message context menu" loading="lazy">
-          </div>
         </div>
       </div>
 
@@ -477,15 +455,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-1">
         <h3 class="text-lg font-semibold mb-3">Snooze & Come Back Later</h3>
         <p class="text-white/50 text-sm mb-4">Snooze messages to reappear when you need them. A dedicated folder keeps track.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/20-snoozed-folder.png" alt="Snoozed folder" loading="lazy">
-          </div>
         </div>
       </div>
 
@@ -493,15 +464,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-2">
         <h3 class="text-lg font-semibold mb-3">Saved Searches</h3>
         <p class="text-white/50 text-sm mb-4">Pin your most-used searches right in the sidebar for one-click access.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/23-saved-searches-sidebar.png" alt="Saved searches in sidebar" loading="lazy">
-          </div>
         </div>
       </div>
     </div>
@@ -542,15 +506,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
         </ul>
       </div>
       <div class="reveal reveal-delay-2 img-two-col">
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
-            <img src="screenshots/25-ai-copilot.png" alt="AI Copilot panel" loading="lazy">
-          </div>
+        <div class="shot">
+          <img src="screenshots/25-ai-copilot.png" alt="AI Copilot panel" loading="lazy">
         </div>
       </div>
     </div>
@@ -598,29 +555,15 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       </div>
 
       <div class="reveal reveal-delay-1">
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/12-calendar-event-form.png" alt="Event creation form" loading="lazy">
-          </div>
         </div>
         <p class="text-center text-white/40 text-sm mt-3">Create events with recurrence, reminders, and attendees</p>
       </div>
 
       <div class="reveal reveal-delay-2">
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/24-calendar-sharing.png" alt="Calendar sharing" loading="lazy">
-          </div>
         </div>
         <p class="text-center text-white/40 text-sm mt-3">Share calendars with colleagues</p>
       </div>
@@ -678,30 +621,16 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-1">
         <h3 class="text-lg font-semibold mb-3">PGP Encryption</h3>
         <p class="text-white/50 text-sm mb-4">Manage PGP keys, encrypt outgoing messages, and verify signed emails — built right in.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/27-pgp-security.png" alt="PGP security settings" loading="lazy">
-          </div>
         </div>
       </div>
 
       <div class="glass-card p-6 reveal reveal-delay-2">
         <h3 class="text-lg font-semibold mb-3">Authentication Verification</h3>
         <p class="text-white/50 text-sm mb-4">See SPF, DKIM, DMARC, and ARC results at a glance for every message.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/18-message-details-security.png" alt="Message authentication details" loading="lazy">
-          </div>
         </div>
       </div>
     </div>
@@ -731,85 +660,43 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="glass-card p-5 reveal reveal-delay-1">
         <h3 class="text-sm font-semibold mb-3 text-white/80">Settings</h3>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/14-settings-general.png" alt="General settings" loading="lazy">
-          </div>
         </div>
       </div>
 
       <div class="glass-card p-5 reveal reveal-delay-2">
         <h3 class="text-sm font-semibold mb-3 text-white/80">Signatures</h3>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/15-settings-signatures.png" alt="Signature settings" loading="lazy">
-          </div>
         </div>
       </div>
 
       <div class="glass-card p-5 reveal reveal-delay-3">
         <h3 class="text-sm font-semibold mb-3 text-white/80">Templates</h3>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/17-settings-templates.png" alt="Template settings" loading="lazy">
-          </div>
         </div>
       </div>
 
       <div class="glass-card p-5 reveal reveal-delay-1">
         <h3 class="text-sm font-semibold mb-3 text-white/80">Filter Rules</h3>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/16-settings-filters.png" alt="Filter rules" loading="lazy">
-          </div>
         </div>
       </div>
 
       <div class="glass-card p-5 reveal reveal-delay-2">
         <h3 class="text-sm font-semibold mb-3 text-white/80">Vacation / Out of Office</h3>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/26-vacation-settings.png" alt="Vacation settings" loading="lazy">
-          </div>
         </div>
       </div>
 
       <div class="glass-card p-5 reveal reveal-delay-3">
         <h3 class="text-sm font-semibold mb-3 text-white/80">Folder Colors</h3>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/08-folder-context-menu.png" alt="Folder context menu with colors" loading="lazy">
-          </div>
         </div>
       </div>
     </div>
@@ -834,15 +721,8 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
       <div class="glass-card p-6 reveal reveal-delay-2">
         <h3 class="text-lg font-semibold mb-3">Keyboard Shortcuts</h3>
         <p class="text-white/50 text-sm mb-4">Navigate your entire inbox without touching the mouse. Gmail-style shortcuts built in.</p>
-        <div class="browser-frame">
-          <div class="browser-bar">
-            <div class="browser-dot browser-dot-red"></div>
-            <div class="browser-dot browser-dot-yellow"></div>
-            <div class="browser-dot browser-dot-green"></div>
-          </div>
-          <div class="browser-frame-content">
+        <div class="shot">
           <img src="screenshots/19-keyboard-shortcuts.png" alt="Keyboard shortcuts" loading="lazy">
-          </div>
         </div>
       </div>
     </div>
