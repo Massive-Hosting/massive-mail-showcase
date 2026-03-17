@@ -22,19 +22,29 @@ const OUTPUT_DIR = path.join(__dirname, "audio");
 
 // Narration segments timed to the walkthrough video (~61 seconds)
 // Each segment has text and the time offset (seconds) when it should start
-// Timings aligned to actual video actions (~71s total)
-// Each narration starts ~1s after the visual action begins
+// Read actual timestamps from the recording markers
+const markersPath = path.join(__dirname, "markers.json");
+let markers: Record<string, number> = {};
+try {
+  markers = JSON.parse(fs.readFileSync(markersPath, "utf8"));
+  console.log("Using recorded markers:", markers);
+} catch {
+  console.warn("No markers.json found — using fallback timings");
+  markers = { login: 0, inbox: 6, compose: 14, search: 24, context_menu: 28, calendar: 32, contacts: 42, ai_copilot: 48, dark_mode: 58, shortcuts: 64 };
+}
+
+// Narration segments keyed to marker names
 const segments = [
-  { time: 0, text: "Meet Massive Mail. A modern webmail client, built for speed." },
-  { time: 6, text: "Sign in and you're greeted by a clean, three-pane layout." },
-  { time: 12, text: "Browse your inbox with clear read and unread indicators. Expand threads to see full conversations." },
-  { time: 18, text: "Compose rich emails with formatting, attachments, and schedule send." },
-  { time: 26, text: "Find anything instantly with powerful full-text search." },
-  { time: 30, text: "Right-click for quick actions — snooze, print, move, and more." },
-  { time: 35, text: "A full calendar with month and week views, event creation, and sharing." },
-  { time: 43, text: "Manage your contacts with photos, groups, and import export." },
-  { time: 48, text: "Ask the AI assistant to summarize, translate, or draft replies." },
-  { time: 60, text: "Switch to dark mode with one click. Massive Mail — the inbox you deserve." },
+  { time: markers.login ?? 0, text: "Meet Massive Mail. A modern webmail client, built for speed." },
+  { time: (markers.inbox ?? 6) + 1, text: "Sign in and you're greeted by a clean, three-pane layout." },
+  { time: (markers.inbox ?? 6) + 4, text: "Browse your inbox with clear read and unread indicators. Expand threads to see full conversations." },
+  { time: (markers.compose ?? 14) + 1, text: "Compose rich emails with formatting, attachments, and schedule send." },
+  { time: (markers.search ?? 24) + 1, text: "Find anything instantly with powerful full-text search." },
+  { time: (markers.context_menu ?? 28) + 1, text: "Right-click for quick actions — snooze, print, move, and more." },
+  { time: (markers.calendar ?? 32) + 1, text: "A full calendar with month and week views. Drag events to reschedule." },
+  { time: (markers.contacts ?? 42) + 1, text: "Manage your contacts with photos, groups, and import export." },
+  { time: (markers.ai_copilot ?? 48) + 1, text: "Ask the AI assistant to summarize, translate, or draft replies." },
+  { time: (markers.dark_mode ?? 58) + 1, text: "Switch to dark mode with one click. Massive Mail — the inbox you deserve." },
 ];
 
 async function generateSegment(text: string, index: number): Promise<string> {
