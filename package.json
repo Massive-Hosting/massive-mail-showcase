@@ -1,0 +1,12 @@
+{
+  "name": "massive-mail-showcase",
+  "private": true,
+  "scripts": {
+    "capture": "npx playwright test --config=playwright.config.ts",
+    "capture:all": "npx playwright test --config=playwright.config.ts",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}
