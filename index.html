@@ -152,10 +152,44 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
   transform: scale(1.02);
   box-shadow: 0 6px 32px rgba(134, 59, 255, 0.15), 0 0 0 1px rgba(134, 59, 255, 0.12);
 }
+.shot img, .browser-frame img {
+  cursor: zoom-in;
+}
 .shot img {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* Lightbox overlay */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.lightbox.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lightbox img {
+  max-width: 92vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lightbox.active img {
+  transform: scale(1);
 }
 
 /* Glass card */
@@ -859,7 +893,33 @@ window.addEventListener('scroll', () => {
   }
   lastScrollY = currentScrollY;
 }, { passive: true });
+
+// Lightbox: click any screenshot to zoom
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = lightbox.querySelector('img');
+
+document.querySelectorAll('.shot img, .browser-frame-content img').forEach(img => {
+  img.addEventListener('click', (e) => {
+    e.stopPropagation();
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightbox.classList.add('active');
+  });
+});
+
+lightbox.addEventListener('click', () => {
+  lightbox.classList.remove('active');
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') lightbox.classList.remove('active');
+});
 </script>
+
+<!-- Lightbox overlay -->
+<div id="lightbox" class="lightbox">
+  <img src="" alt="">
+</div>
 
 </body>
 </html>
