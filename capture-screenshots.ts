@@ -475,27 +475,43 @@ test.describe("Feature Screenshots", () => {
 
   test("25 - AI copilot panel", async ({ page }) => {
     await login(page);
-    // Click first email to have context
-    const firstEmail = page.locator('.message-list-item').first();
-    if (await firstEmail.isVisible()) {
-      await firstEmail.click();
-      await page.waitForTimeout(1000);
+    // Click an email with actual content to summarize (prefer "Real email!" or longest preview)
+    const realEmail = page.locator('.message-list-item').filter({ hasText: "Real email!" }).first();
+    const targetEmail = await realEmail.isVisible({ timeout: 2000 }).catch(() => false)
+      ? realEmail
+      : page.locator('.message-list-item').first();
+    if (await targetEmail.isVisible()) {
+      await targetEmail.click();
+      await page.waitForTimeout(1500);
     }
-    // Click the AI copilot toggle (Sparkles icon in toolbar with aria-label containing "AI")
+    // Click the AI copilot toggle (Sparkles icon in toolbar)
     const aiBtn = page.locator('button[aria-label*="AI"]').first();
     if (await aiBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await aiBtn.click();
       await page.waitForTimeout(2000);
     }
-    // Capture the right side of the screen showing the AI panel + reading pane
-    // The AI panel is on the far right (360px wide)
-    const panel = page.locator('[data-testid="ai-copilot-panel"], .ai-copilot-panel').first();
-    if (await panel.isVisible({ timeout: 3000 }).catch(() => false)) {
-      // Screenshot the full app to show AI panel in context
-      await snap(page, "25-ai-copilot");
-    } else {
-      await snap(page, "25-ai-copilot");
+    // Click "Summarize key points" suggestion button
+    const summarizeBtn = page.locator('button').filter({ hasText: /Summarize|Oppsummer/ }).first();
+    if (await summarizeBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await summarizeBtn.click();
+      // Wait for AI response to stream in
+      await page.waitForTimeout(8000);
     }
+    // Crop to reading pane + AI panel (right portion of screen)
+    const readingPane = page.locator('[role="complementary"]').first();
+    const aiPanel = page.locator('[data-testid="ai-copilot-panel"], .ai-copilot-panel').first();
+    if (await readingPane.isVisible() && await aiPanel.isVisible()) {
+      const rpBox = await readingPane.boundingBox();
+      if (rpBox) {
+        // Capture from reading pane left edge to screen right edge
+        await page.screenshot({
+          path: path.join(SCREENSHOTS_DIR, "25-ai-copilot.png"),
+          clip: { x: rpBox.x, y: 0, width: DESKTOP.width - rpBox.x, height: DESKTOP.height },
+        });
+        return;
+      }
+    }
+    await snap(page, "25-ai-copilot");
   });
 
   // ---- MORE SETTINGS ----
