@@ -3,3 +3,4 @@ test-results/
 package-lock.json
 video/
 .env
+walkthrough-raw.mp4

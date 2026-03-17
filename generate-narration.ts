@@ -148,18 +148,23 @@ async function main() {
     console.log("No background music found, using narration only");
   }
 
-  // Now mix audio with the video
+  // Mix audio with the raw (silent) video
+  // The raw video is walkthrough-raw.mp4 (preserved by record script)
+  const rawVideoPath = path.join(__dirname, "walkthrough-raw.mp4");
   const videoPath = path.join(__dirname, "walkthrough.mp4");
+
+  // Use raw if available, otherwise fall back to walkthrough.mp4
+  const sourceVideo = fs.existsSync(rawVideoPath) ? rawVideoPath : videoPath;
   const finalPath = path.join(__dirname, "walkthrough-narrated.mp4");
 
-  console.log("\nMixing audio with video...");
+  console.log(`\nMixing audio with video (${path.basename(sourceVideo)})...`);
   execSync(
-    `ffmpeg -y -i "${videoPath}" -i "${mixedAudioPath}" -c:v copy -c:a aac -b:a 128k -shortest "${finalPath}"`,
+    `ffmpeg -y -i "${sourceVideo}" -i "${mixedAudioPath}" -c:v copy -c:a aac -b:a 128k -shortest "${finalPath}"`,
     { stdio: "pipe" }
   );
   console.log(`✓ Final video saved to ${finalPath}`);
 
-  // Replace the original
+  // Copy narrated version as the main file for deployment
   fs.copyFileSync(finalPath, videoPath);
   console.log(`✓ Updated walkthrough.mp4 with narration`);
 }

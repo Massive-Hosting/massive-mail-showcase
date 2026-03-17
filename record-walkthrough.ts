@@ -331,10 +331,12 @@ test.describe("Walkthrough Recording", () => {
     const files = fs.readdirSync(OUTPUT_DIR).filter(f => f.endsWith(".webm"));
     if (files.length > 0) {
       const webmPath = path.join(OUTPUT_DIR, files[files.length - 1]);
+      const rawPath = path.join(__dirname, "walkthrough-raw.mp4");
       const mp4Path = path.join(__dirname, "walkthrough.mp4");
-      console.log(`\nConverting ${webmPath} → ${mp4Path}`);
-      execSync(`ffmpeg -y -i "${webmPath}" -c:v libx264 -preset slow -crf 22 -pix_fmt yuv420p -movflags +faststart -an "${mp4Path}"`, { stdio: "inherit" });
-      console.log(`✓ Video saved to ${mp4Path}`);
+      console.log(`\nConverting ${webmPath} → ${rawPath}`);
+      execSync(`ffmpeg -y -i "${webmPath}" -c:v libx264 -preset slow -crf 22 -pix_fmt yuv420p -movflags +faststart -an "${rawPath}"`, { stdio: "inherit" });
+      fs.copyFileSync(rawPath, mp4Path);
+      console.log(`✓ Video saved to ${rawPath} (and copied to ${mp4Path})`);
     }
   });
 });
