@@ -74,18 +74,14 @@ test.describe("Walkthrough Recording", () => {
           position: fixed;
           z-index: 999999;
           pointer-events: none;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: rgba(134, 59, 255, 0.85);
-          border: 2px solid rgba(255, 255, 255, 0.9);
-          transform: translate(-50%, -50%);
-          transition: width 0.12s, height 0.12s, background 0.12s;
+          width: 24px;
+          height: 24px;
+          transform: translate(-3px, -1px);
+          transition: filter 0.1s;
+          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
         }
         #pw-cursor.clicking {
-          width: 8px;
-          height: 8px;
-          background: rgba(134, 59, 255, 1);
+          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)) brightness(0.8);
         }
         * { cursor: none !important; }
       `;
@@ -93,6 +89,7 @@ test.describe("Walkthrough Recording", () => {
         document.head.appendChild(style);
         const cursor = document.createElement("div");
         cursor.id = "pw-cursor";
+        cursor.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 3l14 8.5L12 14l-2 7L5 3z" fill="white" stroke="black" stroke-width="1.5" stroke-linejoin="round"/></svg>';
         document.body.appendChild(cursor);
         document.addEventListener("mousemove", (e) => {
           cursor.style.left = e.clientX + "px";
@@ -108,22 +105,21 @@ test.describe("Walkthrough Recording", () => {
     // ============================================================
     await page.goto(BASE_URL);
     await page.waitForSelector('input[type="email"]', { timeout: 10000 });
-    // Move cursor to center to make it visible from the start
     await page.mouse.move(720, 450, { steps: 5 });
-    await pause(page, 1500);
+    await pause(page, 1000);
 
-    // Type email elegantly
-    await typeSlowly(page, 'input[type="email"]', EMAIL, 40);
-    await pause(page, 500);
+    // Type email
+    await typeSlowly(page, 'input[type="email"]', EMAIL, 35);
+    await pause(page, 300);
 
     // Type password
-    await typeSlowly(page, 'input[type="password"]', PASSWORD, 50);
-    await pause(page, 500);
+    await typeSlowly(page, 'input[type="password"]', PASSWORD, 40);
+    await pause(page, 300);
 
     // Click sign in
     await smoothClick(page, 'button[type="submit"]');
     await page.waitForSelector('[role="treeitem"]', { timeout: 15000 });
-    await pause(page, 2000);
+    await pause(page, 1500);
 
     // ============================================================
     // ACT 2: INBOX - Browse emails
@@ -131,15 +127,15 @@ test.describe("Walkthrough Recording", () => {
 
     // Click first email to open reading pane
     await smoothClick(page, '.message-list-item:nth-child(1)');
-    await pause(page, 2500);
+    await pause(page, 1800);
 
     // Click second email
     await smoothClick(page, '.message-list-item:nth-child(2)');
-    await pause(page, 2000);
+    await pause(page, 1500);
 
     // Click third email
     await smoothClick(page, '.message-list-item:nth-child(3)');
-    await pause(page, 2000);
+    await pause(page, 1500);
 
     // ============================================================
     // ACT 3: COMPOSE with Schedule Send
@@ -261,33 +257,54 @@ test.describe("Walkthrough Recording", () => {
     await smoothClick(page, '.message-list-item:nth-child(1)');
     await pause(page, 1500);
 
-    // Open AI copilot
-    const aiBtn = page.locator('button[aria-label*="AI"]').first();
-    if (await aiBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await smoothClick(page, 'button[aria-label*="AI"]');
-      await pause(page, 2000);
-
-      // Click Summarize
-      const summarizeBtn = page.locator('button').filter({ hasText: /Summarize|Oppsummer/ }).first();
-      if (await summarizeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await smoothClick(page, 'button:has-text("Summarize")');
-        await pause(page, 5000); // Let AI respond
+    // Open AI copilot — try multiple selectors
+    const aiSelectors = [
+      'button[aria-label*="AI"]',
+      'button[aria-label*="Copilot"]',
+      'button[aria-label*="Assistant"]',
+    ];
+    let aiClicked = false;
+    for (const sel of aiSelectors) {
+      const btn = page.locator(sel).first();
+      if (await btn.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await glide(page, sel);
+        await btn.click();
+        aiClicked = true;
+        break;
       }
-
-      // Close copilot
-      await smoothClick(page, 'button[aria-label*="AI"]');
-      await pause(page, 1000);
     }
+    await pause(page, 2000);
+
+    // Click Summarize if AI panel opened
+    if (aiClicked) {
+      const summarizeBtn = page.locator('button').filter({ hasText: /Summarize|Oppsummer|key points/ }).first();
+      if (await summarizeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await glide(page, 'button:has-text("Summarize")');
+        await summarizeBtn.click();
+      }
+    }
+    // Always wait the full duration for timing consistency
+    await pause(page, 5000);
+
+    // Close copilot
+    if (aiClicked) {
+      for (const sel of aiSelectors) {
+        const btn = page.locator(sel).first();
+        if (await btn.isVisible({ timeout: 500 }).catch(() => false)) {
+          await btn.click();
+          break;
+        }
+      }
+    }
+    await pause(page, 1000);
 
     // ============================================================
     // ACT 9: DARK MODE TOGGLE
     // ============================================================
 
-    // Toggle dark mode via JS for smooth transition
     await page.evaluate(() => document.documentElement.classList.add("dark"));
     await pause(page, 3000);
 
-    // Back to light
     await page.evaluate(() => document.documentElement.classList.remove("dark"));
     await pause(page, 2000);
 

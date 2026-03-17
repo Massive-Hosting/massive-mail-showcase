@@ -22,18 +22,18 @@ const OUTPUT_DIR = path.join(__dirname, "audio");
 
 // Narration segments timed to the walkthrough video (~61 seconds)
 // Each segment has text and the time offset (seconds) when it should start
-// Timings aligned to actual video actions (62s total)
+// Timings aligned to actual video actions (~69s total)
 const segments = [
   { time: 0, text: "Meet Massive Mail. A modern webmail client, built for speed." },
-  { time: 6, text: "Sign in and you're greeted by a clean, three-pane layout." },
-  { time: 10, text: "Browse your inbox with clear read and unread indicators." },
-  { time: 15, text: "Compose rich emails with formatting, attachments, and schedule send." },
-  { time: 23, text: "Find anything instantly with powerful full-text search." },
-  { time: 27, text: "Right-click for quick actions — snooze, print, move, and more." },
-  { time: 31, text: "A full calendar with month and week views, event creation, and sharing." },
-  { time: 38, text: "Manage your contacts with photos, groups, and import export." },
-  { time: 43, text: "Ask the AI assistant to summarize, translate, or draft replies." },
-  { time: 52, text: "Switch to dark mode with one click. Massive Mail — the inbox you deserve." },
+  { time: 5, text: "Sign in and you're greeted by a clean, three-pane layout." },
+  { time: 9, text: "Browse your inbox with clear read and unread indicators." },
+  { time: 13, text: "Compose rich emails with formatting, attachments, and schedule send." },
+  { time: 21, text: "Find anything instantly with powerful full-text search." },
+  { time: 25, text: "Right-click for quick actions — snooze, print, move, and more." },
+  { time: 29, text: "A full calendar with month and week views, event creation, and sharing." },
+  { time: 37, text: "Manage your contacts with photos, groups, and import export." },
+  { time: 42, text: "Ask the AI assistant to summarize, translate, or draft replies." },
+  { time: 55, text: "Switch to dark mode with one click. Massive Mail — the inbox you deserve." },
 ];
 
 async function generateSegment(text: string, index: number): Promise<string> {
@@ -114,13 +114,29 @@ async function main() {
   execSync(cmd, { stdio: "pipe" });
   console.log(`✓ Narration saved to ${narrationPath}`);
 
-  // Now mix narration with the video
+  // Mix narration with background music
+  const bgMusicPath = path.join(OUTPUT_DIR, "bg-music.mp3");
+  const mixedAudioPath = path.join(__dirname, "mixed-audio.mp3");
+
+  if (fs.existsSync(bgMusicPath)) {
+    console.log("\nMixing narration with background music...");
+    execSync(
+      `ffmpeg -y -i "${narrationPath}" -i "${bgMusicPath}" -filter_complex "[0:a]volume=1.0[voice];[1:a]volume=0.4[music];[voice][music]amix=inputs=2:duration=first:normalize=0" -c:a libmp3lame -q:a 2 "${mixedAudioPath}"`,
+      { stdio: "pipe" }
+    );
+    console.log(`✓ Mixed audio saved to ${mixedAudioPath}`);
+  } else {
+    fs.copyFileSync(narrationPath, mixedAudioPath);
+    console.log("No background music found, using narration only");
+  }
+
+  // Now mix audio with the video
   const videoPath = path.join(__dirname, "walkthrough.mp4");
   const finalPath = path.join(__dirname, "walkthrough-narrated.mp4");
 
-  console.log("\nMixing narration with video...");
+  console.log("\nMixing audio with video...");
   execSync(
-    `ffmpeg -y -i "${videoPath}" -i "${narrationPath}" -c:v copy -c:a aac -b:a 128k -shortest "${finalPath}"`,
+    `ffmpeg -y -i "${videoPath}" -i "${mixedAudioPath}" -c:v copy -c:a aac -b:a 128k -shortest "${finalPath}"`,
     { stdio: "pipe" }
   );
   console.log(`✓ Final video saved to ${finalPath}`);
