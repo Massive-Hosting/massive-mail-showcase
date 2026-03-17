@@ -74,17 +74,17 @@ test.describe("Walkthrough Recording", () => {
           position: fixed;
           z-index: 999999;
           pointer-events: none;
-          width: 20px;
-          height: 20px;
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
-          background: rgba(134, 59, 255, 0.7);
-          box-shadow: 0 0 0 3px rgba(134, 59, 255, 0.25), 0 2px 8px rgba(0,0,0,0.3);
+          background: rgba(134, 59, 255, 0.85);
+          border: 2px solid rgba(255, 255, 255, 0.9);
           transform: translate(-50%, -50%);
-          transition: width 0.15s, height 0.15s, background 0.15s;
+          transition: width 0.12s, height 0.12s, background 0.12s;
         }
         #pw-cursor.clicking {
-          width: 14px;
-          height: 14px;
+          width: 8px;
+          height: 8px;
           background: rgba(134, 59, 255, 1);
         }
         * { cursor: none !important; }
