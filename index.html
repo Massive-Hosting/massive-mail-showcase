@@ -387,6 +387,14 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
           <source src="walkthrough.mp4" type="video/mp4">
           <img src="screenshots/01-login.png" alt="Massive Mail login">
         </video>
+        <!-- Sound toggle button -->
+        <button
+          id="sound-toggle"
+          onclick="const v=document.getElementById('hero-video');v.muted=!v.muted;this.textContent=v.muted?'🔇 Enable sound':'🔊 Sound on'"
+          style="position:absolute;bottom:12px;right:12px;z-index:10;padding:6px 14px;border-radius:8px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);color:#fff;font-size:12px;font-weight:500;border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:all 0.2s;"
+          onmouseover="this.style.background='rgba(134,59,255,0.6)'"
+          onmouseout="this.style.background='rgba(0,0,0,0.6)'"
+        >🔇 Enable sound</button>
       </div>
     </div>
   </div>
