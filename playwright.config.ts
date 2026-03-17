@@ -18,6 +18,7 @@ export default defineConfig({
       use: {
         browserName: "chromium",
         viewport: { width: 1440, height: 900 },
+        deviceScaleFactor: 2, // Retina 2x for crisp screenshots
       },
     },
   ],

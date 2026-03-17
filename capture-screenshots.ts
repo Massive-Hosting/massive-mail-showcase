@@ -151,14 +151,18 @@ test.describe("Feature Screenshots", () => {
     await page.waitForTimeout(1000);
     const scheduleBtn = page.locator('.compose-dialog__send-btn--dropdown');
     if (await scheduleBtn.isVisible()) {
+      const btnBox = await scheduleBtn.boundingBox();
       await scheduleBtn.click();
       await page.waitForTimeout(500);
-    }
-    // Crop to compose dialog area (includes the dropdown)
-    const dialog = page.locator('.compose-dialog').first();
-    if (await dialog.isVisible()) {
-      // Take full page since dropdown renders in a portal
-      await snap(page, "05-schedule-send");
+      // Crop tightly around the send button + dropdown menu
+      if (btnBox) {
+        await page.screenshot({
+          path: path.join(SCREENSHOTS_DIR, "05-schedule-send.png"),
+          clip: { x: Math.max(0, btnBox.x - 40), y: Math.max(0, btnBox.y - 20), width: 350, height: 320 },
+        });
+      } else {
+        await snap(page, "05-schedule-send");
+      }
     }
   });
 
@@ -184,11 +188,14 @@ test.describe("Feature Screenshots", () => {
     if (await searchInput.isVisible()) {
       await searchInput.click();
       await page.waitForTimeout(500);
-      await searchInput.fill("test");
-      await page.waitForTimeout(300);
+      await searchInput.fill("invoice");
+      await page.waitForTimeout(500);
     }
-    // Crop to the toolbar area with search dropdown
-    await snap(page, "07-search");
+    // Crop to upper-left quadrant: toolbar + search dropdown + sidebar
+    await page.screenshot({
+      path: path.join(SCREENSHOTS_DIR, "07-search.png"),
+      clip: { x: 0, y: 0, width: 750, height: 500 },
+    });
   });
 
   test("08 - Folder context menu", async ({ page }) => {
@@ -398,12 +405,18 @@ test.describe("Feature Screenshots", () => {
   test("21 - Read/unread visual indicators", async ({ page }) => {
     await login(page);
     await page.waitForTimeout(1000);
-    // Crop to just the message list pane
+    // Crop to message list: wider, half height to show the contrast well
     const listPane = page.locator('.mail-list-pane').first();
     if (await listPane.isVisible()) {
-      await snapEl(listPane, "21-read-unread-indicators");
-    } else {
-      await snap(page, "21-read-unread-indicators");
+      const box = await listPane.boundingBox();
+      if (box) {
+        await page.screenshot({
+          path: path.join(SCREENSHOTS_DIR, "21-read-unread-indicators.png"),
+          clip: { x: box.x, y: box.y, width: box.width, height: Math.min(box.height, 400) },
+        });
+      } else {
+        await snapEl(listPane, "21-read-unread-indicators");
+      }
     }
   });
 
@@ -424,30 +437,43 @@ test.describe("Feature Screenshots", () => {
 
   test("23 - Saved searches in sidebar", async ({ page }) => {
     await login(page);
-    // Create a saved search first so the section is visible
+    // Create a saved search so the section appears
     const searchInput = page.locator('#search-input, input[placeholder*="Search"]').first();
     if (await searchInput.isVisible()) {
       await searchInput.click();
-      await searchInput.fill("important");
+      await searchInput.fill("from:newsletter");
       await page.keyboard.press("Enter");
       await page.waitForTimeout(1500);
-      // Look for the bookmark/save button
-      const saveBtn = page.locator('button[aria-label*="Save"], button[title*="Save search"]').first();
-      if (await saveBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      // Look for the bookmark/save button (could be a Bookmark icon near the search)
+      const saveBtn = page.locator('button[aria-label*="save" i], button[aria-label*="Save" i], button[title*="save" i]').first();
+      if (await saveBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await saveBtn.click();
-        await page.waitForTimeout(500);
-        // Accept the default name
+        await page.waitForTimeout(1000);
+        // A prompt might appear — accept with Enter
         await page.keyboard.press("Enter");
         await page.waitForTimeout(500);
       }
-      // Clear search to go back to inbox
-      await page.keyboard.press("Escape");
+      // Clear search
+      const clearBtn = page.locator('button[title*="Clear"], button[aria-label*="Clear"]').first();
+      if (await clearBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await clearBtn.click();
+      } else {
+        await page.keyboard.press("Escape");
+      }
       await page.waitForTimeout(500);
     }
-    // Capture sidebar which should now show saved searches
+    // Capture sidebar — crop to half height for wider look
     const sidebar = page.locator('nav[role="navigation"]').first();
     if (await sidebar.isVisible()) {
-      await snapEl(sidebar, "23-saved-searches-sidebar");
+      const box = await sidebar.boundingBox();
+      if (box) {
+        await page.screenshot({
+          path: path.join(SCREENSHOTS_DIR, "23-saved-searches-sidebar.png"),
+          clip: { x: box.x, y: box.y, width: box.width, height: Math.min(box.height, 450) },
+        });
+      } else {
+        await snapEl(sidebar, "23-saved-searches-sidebar");
+      }
     }
   });
 
