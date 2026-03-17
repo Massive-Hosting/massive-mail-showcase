@@ -378,7 +378,6 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
           id="hero-video"
           autoplay
           muted
-          loop
           playsinline
           preload="auto"
           poster="screenshots/01-login.png"
@@ -387,14 +386,23 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #
           <source src="walkthrough.mp4" type="video/mp4">
           <img src="screenshots/01-login.png" alt="Massive Mail login">
         </video>
-        <!-- Sound toggle button -->
+        <!-- Sound toggle + play overlay -->
         <button
           id="sound-toggle"
-          onclick="const v=document.getElementById('hero-video');v.muted=!v.muted;this.textContent=v.muted?'🔇 Enable sound':'🔊 Sound on'"
           style="position:absolute;bottom:12px;right:12px;z-index:10;padding:6px 14px;border-radius:8px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);color:#fff;font-size:12px;font-weight:500;border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:all 0.2s;"
           onmouseover="this.style.background='rgba(134,59,255,0.6)'"
           onmouseout="this.style.background='rgba(0,0,0,0.6)'"
         >🔇 Enable sound</button>
+        <!-- Play with sound overlay — shown on first visit -->
+        <div id="play-overlay" style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);backdrop-filter:blur(2px);cursor:pointer;transition:opacity 0.5s;">
+          <div style="text-align:center;">
+            <div style="width:72px;height:72px;border-radius:50%;background:rgba(134,59,255,0.9);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 24px rgba(134,59,255,0.4);transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div style="color:#fff;font-size:14px;font-weight:600;">Watch the tour</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:2px;">60 seconds · with narration</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -938,6 +946,49 @@ lightbox.addEventListener('click', () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') lightbox.classList.remove('active');
+});
+
+// Hero video: play with sound on overlay click, stop after one play
+const heroVideo = document.getElementById('hero-video');
+const playOverlay = document.getElementById('play-overlay');
+const soundToggle = document.getElementById('sound-toggle');
+
+playOverlay.addEventListener('click', () => {
+  heroVideo.currentTime = 0;
+  heroVideo.muted = false;
+  heroVideo.play();
+  playOverlay.style.opacity = '0';
+  playOverlay.style.pointerEvents = 'none';
+  soundToggle.textContent = '🔊 Sound on';
+});
+
+// Stop after one full play (don't loop when narration is on)
+heroVideo.addEventListener('ended', () => {
+  if (!heroVideo.muted) {
+    // Show poster frame and replay overlay
+    heroVideo.pause();
+    soundToggle.textContent = '🔇 Enable sound';
+    playOverlay.querySelector('div > div:first-child').textContent = 'Replay tour';
+    playOverlay.querySelector('div > div:last-child').textContent = '60 seconds · with narration';
+    playOverlay.style.opacity = '1';
+    playOverlay.style.pointerEvents = 'auto';
+  } else {
+    // Muted mode: loop silently
+    heroVideo.currentTime = 0;
+    heroVideo.play();
+  }
+});
+
+// Sound toggle button
+soundToggle.addEventListener('click', () => {
+  heroVideo.muted = !heroVideo.muted;
+  soundToggle.textContent = heroVideo.muted ? '🔇 Enable sound' : '🔊 Sound on';
+  // If unmuting, restart for best experience
+  if (!heroVideo.muted) {
+    heroVideo.currentTime = 0;
+    playOverlay.style.opacity = '0';
+    playOverlay.style.pointerEvents = 'none';
+  }
 });
 </script>
 
