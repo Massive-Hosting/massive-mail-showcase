@@ -550,16 +550,17 @@ test.describe("Feature Screenshots", () => {
       // Wait for AI response to stream in
       await page.waitForTimeout(8000);
     }
-    // Crop to reading pane + AI panel (right portion of screen)
-    const readingPane = page.locator('[role="complementary"]').first();
+    // Crop to bottom-right: AI panel with summary + bottom of reading pane
     const aiPanel = page.locator('[data-testid="ai-copilot-panel"], .ai-copilot-panel').first();
-    if (await readingPane.isVisible() && await aiPanel.isVisible()) {
-      const rpBox = await readingPane.boundingBox();
-      if (rpBox) {
-        // Capture from reading pane left edge to screen right edge
+    if (await aiPanel.isVisible()) {
+      const panelBox = await aiPanel.boundingBox();
+      if (panelBox) {
+        // Capture the right side, bottom half — shows the AI summary prominently
+        const cropTop = Math.max(0, DESKTOP.height * 0.3); // skip top 30%
+        const cropLeft = Math.max(0, panelBox.x - 400); // include some reading pane for context
         await page.screenshot({
           path: path.join(SCREENSHOTS_DIR, "25-ai-copilot.png"),
-          clip: { x: rpBox.x, y: 0, width: DESKTOP.width - rpBox.x, height: DESKTOP.height },
+          clip: { x: cropLeft, y: cropTop, width: DESKTOP.width - cropLeft, height: DESKTOP.height - cropTop },
         });
         return;
       }
