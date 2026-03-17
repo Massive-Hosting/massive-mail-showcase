@@ -282,6 +282,18 @@ test.describe("Feature Screenshots", () => {
       await newEventBtn.click();
       await page.waitForTimeout(1000);
     }
+    // Fill in a title so the form looks polished
+    const titleInput = page.locator('input[placeholder*="title" i], input[placeholder*="tittel" i]').first();
+    if (await titleInput.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await titleInput.fill("Team standup");
+      await page.waitForTimeout(300);
+    }
+    // Set start time to 08:00 to avoid overlapping with other events
+    const timeInput = page.locator('input[type="time"]').first();
+    if (await timeInput.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await timeInput.fill("08:00");
+      await page.waitForTimeout(300);
+    }
     // Crop to the dialog
     const dialog = page.locator('[role="dialog"]').first();
     if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
