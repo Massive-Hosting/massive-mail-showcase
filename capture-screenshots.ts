@@ -89,6 +89,28 @@ test.describe("Feature Screenshots", () => {
     await snap(page, "02-inbox-three-pane");
   });
 
+  test("02b - Reading pane close-up", async ({ page }) => {
+    await login(page);
+    // Click second email for variety
+    const emails = page.locator('.message-list-item');
+    const target = (await emails.count()) > 1 ? emails.nth(1) : emails.first();
+    if (await target.isVisible()) {
+      await target.click();
+      await page.waitForTimeout(1500);
+    }
+    // Crop to reading pane area (right side of the screen)
+    const readingPane = page.locator('[role="complementary"]').first();
+    if (await readingPane.isVisible()) {
+      await snapEl(readingPane, "02b-reading-pane");
+    } else {
+      // Fallback: crop right half
+      await page.screenshot({
+        path: path.join(SCREENSHOTS_DIR, "02b-reading-pane.png"),
+        clip: { x: 700, y: 52, width: 740, height: 848 },
+      });
+    }
+  });
+
   test("03 - Dark mode", async ({ page }) => {
     await login(page);
     const firstEmail = page.locator('.message-list-item').first();
@@ -396,6 +418,27 @@ test.describe("Feature Screenshots", () => {
 
   test("23 - Saved searches in sidebar", async ({ page }) => {
     await login(page);
+    // Create a saved search first so the section is visible
+    const searchInput = page.locator('#search-input, input[placeholder*="Search"]').first();
+    if (await searchInput.isVisible()) {
+      await searchInput.click();
+      await searchInput.fill("important");
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(1500);
+      // Look for the bookmark/save button
+      const saveBtn = page.locator('button[aria-label*="Save"], button[title*="Save search"]').first();
+      if (await saveBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await saveBtn.click();
+        await page.waitForTimeout(500);
+        // Accept the default name
+        await page.keyboard.press("Enter");
+        await page.waitForTimeout(500);
+      }
+      // Clear search to go back to inbox
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(500);
+    }
+    // Capture sidebar which should now show saved searches
     const sidebar = page.locator('nav[role="navigation"]').first();
     if (await sidebar.isVisible()) {
       await snapEl(sidebar, "23-saved-searches-sidebar");
@@ -438,21 +481,21 @@ test.describe("Feature Screenshots", () => {
       await firstEmail.click();
       await page.waitForTimeout(1000);
     }
-    // Look for the AI copilot toggle button in the toolbar area
-    // It might be in the activity bar or toolbar
-    const aiBtn = page.locator('button[aria-label*="AI"], button[title*="AI"], button:has-text("AI")').first();
-    if (await aiBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    // Click the AI copilot toggle (Sparkles icon in toolbar with aria-label containing "AI")
+    const aiBtn = page.locator('button[aria-label*="AI"]').first();
+    if (await aiBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await aiBtn.click();
-      await page.waitForTimeout(1500);
-      // Try to capture the AI panel
-      const aiPanel = page.locator('[class*="copilot"], [class*="ai-panel"]').first();
-      if (await aiPanel.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await snapEl(aiPanel, "25-ai-copilot");
-        return;
-      }
+      await page.waitForTimeout(2000);
     }
-    // Fallback: full screenshot
-    await snap(page, "25-ai-copilot");
+    // Capture the right side of the screen showing the AI panel + reading pane
+    // The AI panel is on the far right (360px wide)
+    const panel = page.locator('[data-testid="ai-copilot-panel"], .ai-copilot-panel').first();
+    if (await panel.isVisible({ timeout: 3000 }).catch(() => false)) {
+      // Screenshot the full app to show AI panel in context
+      await snap(page, "25-ai-copilot");
+    } else {
+      await snap(page, "25-ai-copilot");
+    }
   });
 
   // ---- MORE SETTINGS ----
