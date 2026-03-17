@@ -35,18 +35,24 @@ try {
 
 // Narration segments keyed to marker names.
 // Each segment starts when its visual action is visible on screen.
-const segments = [
-  { time: markers.login ?? 0, text: "Meet Massive Mail. A modern webmail client, built for speed." },
-  { time: (markers.login ?? 0) + 3, text: "Sign in securely to your account." },
-  { time: (markers.inbox ?? 6), text: "A clean three-pane layout. Browse emails with clear read and unread indicators." },
-  { time: (markers.compose ?? 14), text: "Compose rich emails with formatting, attachments, and schedule send." },
-  { time: (markers.search ?? 24), text: "Find anything instantly with powerful search." },
-  { time: (markers.context_menu ?? 28), text: "Right-click for quick actions. Snooze, print, move, and more." },
-  { time: (markers.calendar ?? 32), text: "A full calendar with month and week views. Click events or drag to reschedule." },
-  { time: (markers.contacts ?? 42), text: "Manage your contacts with photos, groups, and import export." },
-  { time: (markers.ai_copilot ?? 48), text: "Ask the AI assistant to summarize, translate, or draft replies." },
-  { time: (markers.dark_mode ?? 58), text: "Switch to dark mode with one click. Massive Mail. The inbox you deserve." },
+// Build segments ensuring no overlaps: each segment must finish before the next starts.
+// Use shorter text for tight gaps.
+const rawSegments = [
+  { marker: "login", offset: 0, text: "Massive Mail. Built for speed." },
+  { marker: "inbox", offset: 0, text: "A clean three-pane layout with clear read and unread indicators." },
+  { marker: "compose", offset: 0, text: "Compose rich emails with formatting, attachments, and schedule send." },
+  { marker: "search", offset: 0, text: "Powerful full-text search." },
+  { marker: "context_menu", offset: 0, text: "Right-click for quick actions." },
+  { marker: "calendar", offset: 0, text: "A full calendar with month and week views. Drag events to reschedule." },
+  { marker: "contacts", offset: 0, text: "Manage contacts with photos and groups." },
+  { marker: "ai_copilot", offset: 0, text: "Ask the AI assistant to summarize or draft replies." },
+  { marker: "dark_mode", offset: 0, text: "Dark mode with one click. Massive Mail. The inbox you deserve." },
 ];
+
+const segments = rawSegments.map(s => ({
+  time: (markers[s.marker] ?? 0) + s.offset,
+  text: s.text,
+}));
 
 async function generateSegment(text: string, index: number): Promise<string> {
   const outPath = path.join(OUTPUT_DIR, `segment-${String(index).padStart(2, "0")}.mp3`);
@@ -96,7 +102,7 @@ async function main() {
 
   // Build ffmpeg filter to position each segment at the right time
   // Create a 62-second silent base track, then overlay each segment
-  const totalDuration = 62;
+  const totalDuration = Math.ceil((markers.end ?? 66) + 2);
 
   // Generate silent base
   const silentPath = path.join(OUTPUT_DIR, "silent.mp3");
