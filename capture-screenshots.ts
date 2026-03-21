@@ -576,7 +576,7 @@ test.describe("Feature Screenshots", () => {
     }
   });
 
-  test("27 - PGP / Security settings", async ({ page }) => {
+  test("27 - Security settings (2FA + App Passwords + PGP)", async ({ page }) => {
     await login(page);
     await openSettings(page, "Security");
     const dialog = page.locator('[role="dialog"]').first();
@@ -584,6 +584,114 @@ test.describe("Feature Screenshots", () => {
       await snapEl(dialog, "27-pgp-security");
     } else {
       await snap(page, "27-pgp-security");
+    }
+  });
+
+  // ---- NEW FEATURES ----
+
+  test("28 - Command palette (Cmd+K)", async ({ page }) => {
+    await login(page);
+    await page.keyboard.press("Meta+k");
+    await page.waitForTimeout(800);
+    const input = page.locator('.command-palette__input').first();
+    if (await input.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await input.fill("inbox");
+      await page.waitForTimeout(300);
+    }
+    await page.screenshot({
+      path: path.join(SCREENSHOTS_DIR, "28-command-palette.png"),
+      clip: { x: 310, y: 60, width: 820, height: 450 },
+    });
+    await page.keyboard.press("Escape");
+  });
+
+  test("29 - Quick action buttons on hover", async ({ page }) => {
+    await login(page);
+    const firstEmail = page.locator('.message-list-item').first();
+    if (await firstEmail.isVisible()) {
+      await firstEmail.hover();
+      await page.waitForTimeout(500);
+      const box = await firstEmail.boundingBox();
+      if (box) {
+        await page.screenshot({
+          path: path.join(SCREENSHOTS_DIR, "29-quick-actions.png"),
+          clip: { x: box.x, y: Math.max(0, box.y - 10), width: box.width, height: box.height + 20 },
+        });
+      }
+    }
+  });
+
+  test("30 - Attachment cards", async ({ page }) => {
+    await login(page);
+    const attachEmail = page.locator('.message-list-item').filter({ hasText: /Budget|Design|Contract|Invoice/ }).first();
+    if (await attachEmail.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await attachEmail.click();
+      await page.waitForTimeout(1500);
+      const attachments = page.locator('.message-view__attachments').first();
+      if (await attachments.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await snapEl(attachments, "30-attachment-cards");
+      }
+    }
+  });
+
+  test("31 - Junk folder with spam banner", async ({ page }) => {
+    await login(page);
+    const junkFolder = page.locator('[role="treeitem"]').filter({ hasText: /Junk|Spam/ }).first();
+    if (await junkFolder.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await junkFolder.click();
+      await page.waitForTimeout(1000);
+      const firstEmail = page.locator('.message-list-item').first();
+      if (await firstEmail.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await firstEmail.click();
+        await page.waitForTimeout(1500);
+      }
+    }
+    const main = page.locator('#main-content').first();
+    if (await main.isVisible()) {
+      await snapEl(main, "31-spam-junk-view");
+    }
+  });
+
+  test("32 - Calendar team availability view", async ({ page }) => {
+    await login(page);
+    await goCalendar(page);
+    const teamBtn = page.locator('button').filter({ hasText: /^Team$/ }).first();
+    if (await teamBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await teamBtn.click();
+      await page.waitForTimeout(2000);
+    }
+    const main = page.locator('#main-content').first();
+    if (await main.isVisible()) {
+      await snapEl(main, "32-team-availability");
+    }
+  });
+
+  test("33 - Folder sharing dialog", async ({ page }) => {
+    await login(page);
+    const customFolder = page.locator('[role="treeitem"]').filter({ has: page.locator('svg') }).last();
+    if (await customFolder.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await customFolder.click({ button: "right" });
+      await page.waitForTimeout(500);
+      const shareItem = page.locator('[role="menuitem"]').filter({ hasText: /Share|Del|Teilen/ }).first();
+      if (await shareItem.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await shareItem.click();
+        await page.waitForTimeout(1000);
+        const dialog = page.locator('[role="dialog"]').first();
+        if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await snapEl(dialog, "33-folder-sharing");
+          return;
+        }
+      }
+    }
+    await snap(page, "33-folder-sharing");
+  });
+
+  test("34 - Settings - Accounts with collaboration", async ({ page }) => {
+    await login(page);
+    await openSettings(page, "Accounts");
+    const dialog = page.locator('[role="dialog"]').first();
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await snapEl(dialog, "34-settings-accounts");
     }
   });
 });
