@@ -623,14 +623,32 @@ test.describe("Feature Screenshots", () => {
 
   test("30 - Attachment cards", async ({ page }) => {
     await login(page);
-    const attachEmail = page.locator('.message-list-item').filter({ hasText: /Budget|Design|Contract|Invoice/ }).first();
-    if (await attachEmail.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await attachEmail.click();
-      await page.waitForTimeout(1500);
-      const attachments = page.locator('.message-view__attachments').first();
-      if (await attachments.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await snapEl(attachments, "30-attachment-cards");
+    // Look for emails with paperclip (attachment indicator)
+    const emails = page.locator('.message-list-item');
+    const count = await emails.count();
+    for (let i = 0; i < Math.min(count, 20); i++) {
+      const email = emails.nth(i);
+      const clipIcon = email.locator('.message-list-item__attachment-icon');
+      if (await clipIcon.isVisible({ timeout: 200 }).catch(() => false)) {
+        await email.click();
+        await page.waitForTimeout(1500);
+        const attachments = page.locator('.message-view__attachments').first();
+        if (await attachments.isVisible({ timeout: 2000 }).catch(() => false)) {
+          // Check if there are multiple attachment cards for a better screenshot
+          const cardCount = await page.locator('.attachment-card').count();
+          if (cardCount >= 2) {
+            await snapEl(attachments, "30-attachment-cards");
+            return;
+          }
+        }
       }
+    }
+    // Fallback: take whatever attachment we found
+    const attachments = page.locator('.message-view__attachments').first();
+    if (await attachments.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await snapEl(attachments, "30-attachment-cards");
+    } else {
+      await snap(page, "30-attachment-cards");
     }
   });
 
