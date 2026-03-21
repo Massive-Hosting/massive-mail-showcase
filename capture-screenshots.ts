@@ -157,25 +157,14 @@ test.describe("Feature Screenshots", () => {
     const scheduleBtn = page.locator('.compose-dialog__send-btn--dropdown');
     if (await scheduleBtn.isVisible()) {
       await scheduleBtn.click();
-      await page.waitForTimeout(500);
-      // The dropdown opens upward (above the send button). Find the dropdown portal.
-      const dropdown = page.locator('[role="menu"]').first();
-      if (await dropdown.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const menuBox = await dropdown.boundingBox();
-        const btnBox = await scheduleBtn.boundingBox();
-        if (menuBox && btnBox) {
-          // Crop from top of dropdown to bottom of send button, with padding
-          const top = Math.max(0, menuBox.y - 15);
-          const bottom = btnBox.y + btnBox.height + 15;
-          const left = Math.max(0, Math.min(menuBox.x, btnBox.x) - 30);
-          const right = Math.max(menuBox.x + menuBox.width, btnBox.x + btnBox.width) + 30;
-          await page.screenshot({
-            path: path.join(SCREENSHOTS_DIR, "05-schedule-send.png"),
-            clip: { x: left, y: top, width: right - left, height: bottom - top },
-          });
-          return;
-        }
-      }
+      await page.waitForTimeout(800);
+    }
+    // Capture the compose dialog area with the dropdown visible
+    const dialog = page.locator('.compose-dialog').first();
+    if (await dialog.isVisible()) {
+      // Full page screenshot to capture the portal dropdown
+      await snap(page, "05-schedule-send");
+    } else {
       await snap(page, "05-schedule-send");
     }
   });
@@ -371,29 +360,29 @@ test.describe("Feature Screenshots", () => {
 
   test("18 - Message details / security (SPF/DKIM/DMARC)", async ({ page }) => {
     await login(page);
-    // Find "Real email!" subject and click it
-    const realEmail = page.locator('.message-list-item').filter({ hasText: "Real email!" }).first();
-    if (await realEmail.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await realEmail.click();
+    // Click an email with rich content
+    const emails = page.locator('.message-list-item');
+    if (await emails.first().isVisible()) {
+      await emails.nth(2).click().catch(() => emails.first().click());
       await page.waitForTimeout(1500);
-      // Open properties dialog
-      await page.locator('button[title="Message details"], button[aria-label="Message details"]').first().click().catch(async () => {
-        // Fallback: right-click and select properties
-        await realEmail.click({ button: "right" });
-        await page.waitForTimeout(300);
-        await page.click('text=Message details').catch(() => {});
-      });
-      await page.waitForTimeout(1000);
-      // Scroll to security section within the dialog
-      const dialogContent = page.locator('[role="dialog"]').first();
-      if (await dialogContent.isVisible({ timeout: 2000 }).catch(() => false)) {
-        const securityHeading = dialogContent.locator('text=Security').last();
-        if (await securityHeading.isVisible({ timeout: 2000 }).catch(() => false)) {
-          await securityHeading.scrollIntoViewIfNeeded();
-          await page.waitForTimeout(500);
-        }
-        await snapEl(dialogContent, "18-message-details-security");
+    }
+    // Open message details via the info button (aria-label="Message details")
+    const infoBtn = page.locator('button[aria-label="Message details"]').first();
+    if (await infoBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await infoBtn.click();
+    } else {
+      // Try right-click context menu
+      await page.locator('.message-list-item').nth(2).click({ button: "right" });
+      await page.waitForTimeout(300);
+      const menuItem = page.locator('[role="menuitem"]').filter({ hasText: /details|Details|egenskaper/ }).first();
+      if (await menuItem.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await menuItem.click();
       }
+    }
+    await page.waitForTimeout(1000);
+    const dialogContent = page.locator('[role="dialog"]').first();
+    if (await dialogContent.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await snapEl(dialogContent, "18-message-details-security");
     } else {
       await snap(page, "18-message-details-security");
     }
@@ -542,25 +531,31 @@ test.describe("Feature Screenshots", () => {
       await targetEmail.click();
       await page.waitForTimeout(1500);
     }
-    // Click the AI copilot toggle (Sparkles icon in toolbar)
-    const aiBtn = page.locator('button[aria-label*="AI"]').first();
-    if (await aiBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    // Click the AI copilot toggle (Sparkles icon in toolbar or data-testid)
+    const aiBtn = page.locator('[data-testid="ai-copilot-toggle"], button[aria-label*="AI"]').first();
+    if (await aiBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await aiBtn.click();
       await page.waitForTimeout(2000);
+      // Click "Summarize key points" suggestion button
+      const summarizeBtn = page.locator('button').filter({ hasText: /Summarize|Oppsummer/ }).first();
+      if (await summarizeBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await summarizeBtn.click();
+        await page.waitForTimeout(8000);
+      }
+      // Crop right side: reading pane + AI panel
+      await page.screenshot({
+        path: path.join(SCREENSHOTS_DIR, "25-ai-copilot.png"),
+        clip: { x: 620, y: 52, width: 820, height: 848 },
+      });
+    } else {
+      // AI not enabled — capture the reading pane as fallback
+      const readingPane = page.locator('[role="complementary"]').first();
+      if (await readingPane.isVisible()) {
+        await snapEl(readingPane, "25-ai-copilot");
+      } else {
+        await snap(page, "25-ai-copilot");
+      }
     }
-    // Click "Summarize key points" suggestion button
-    const summarizeBtn = page.locator('button').filter({ hasText: /Summarize|Oppsummer/ }).first();
-    if (await summarizeBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await summarizeBtn.click();
-      // Wait for AI response to stream in
-      await page.waitForTimeout(8000);
-    }
-    // Crop tightly: bottom 55% of screen, right side only (reading pane + AI panel)
-    // Use fixed coordinates since we know the viewport is 1440x900
-    await page.screenshot({
-      path: path.join(SCREENSHOTS_DIR, "25-ai-copilot.png"),
-      clip: { x: 620, y: 400, width: 820, height: 500 },
-    });
   });
 
   // ---- MORE SETTINGS ----
